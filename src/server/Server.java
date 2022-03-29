@@ -31,14 +31,14 @@ public class Server {
 			System.out.println("Entró en el puerto: " + socket2.getPort());
 			
 			
-			//new Thread(()->{
+			new Thread(()->{
 				
 				Game session = new Game(socket1, socket2);
 				
 				session.start();
 				sessions.add(session);
 				
-		//	}).start();
+			}).start();
 			
 			
 		}
