@@ -9,21 +9,24 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 import com.google.gson.Gson;
-
-import events.OnConectionListenner;
+import events.OnSearchPlayerlistenner;
+import events.OnstartGameListenner;
+import javafx.application.Platform;
 import ui.Main;
+import ui.Ventana00;
+import ui.Ventana1;
 
 
 
-public class Cliente implements OnConectionListenner{
-
-Main main = new Main(); 
+public class Cliente implements OnSearchPlayerlistenner{
+	
+	Ventana1 ventana1;
+	OnstartGameListenner onstart;
+	
 private static Cliente instance;
 	
-	private Cliente() {
+	public  Cliente() {
 	}
 	public static synchronized Cliente getInstance() {
 		if(instance == null) {
@@ -31,6 +34,11 @@ private static Cliente instance;
 		}
 		return instance;
 	}
+
+Main main = new Main(); 
+
+
+Ventana00 venatan00=Ventana00.getInstance();
 	
 	
 	private BufferedReader br;
@@ -39,6 +47,10 @@ private static Cliente instance;
 	public  void conectinCount() {
 		
 		Gson gson = new Gson();
+		ventana1 = Ventana1.getInstance();
+		ventana1.setStopGameListenner(this);
+		
+		
 		new Thread(()->{
 			try {
 				System.out.println("Aqui fue");
@@ -46,13 +58,14 @@ private static Cliente instance;
 				System.out.println("Conectado");
 				br = new 	BufferedReader(new InputStreamReader(socket.getInputStream()));
 				bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-				Scanner scanner=new Scanner(System.in); 
-				String mesaggeString = br.readLine();
+			
+
+				String toSatar = "";
+				toSatar = br.readLine() ;
+				System.out.println(toSatar + "recibio el server");
+				onstart.startStopGame(toSatar);
 				
-				String a = "A: Mensaje del ganador";
-                String json = gson.toJson(a);
-                bw.write(json+"\n");
-                
+				
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -65,16 +78,35 @@ private static Cliente instance;
 	}
 	@Override
 	public void startConection() {
+		
+		Platform.runLater(()->{
+			
 		conectinCount();
+		
+		});
+		
+		System.out.println("LLEgue hata aqui");
 		
 	}
 	
 	public void setClient(Main main) {
 		
 		this.main = main;
-		main.setConectionListenner(this);
+		//main.setConectionListenner(this);
 		
 	}
+	public void setSearchingPLayer(Ventana00 ventana00) {
+		
+		this.venatan00=ventana00;
+		ventana00.setSearchListenner(this);
+		
+	}
+	public void setOnstart(OnstartGameListenner onstart) {
+		this.onstart = onstart;
+	}
+	
+	
+	
 
 }
 

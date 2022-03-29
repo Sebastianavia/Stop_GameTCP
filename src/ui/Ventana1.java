@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import comm.Cliente;
+import events.OnstartGameListenner;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,8 +20,20 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 
-public class Ventana1 implements Initializable{
+public class Ventana1 implements OnstartGameListenner{
+private static Ventana1 instance;
+SharedStage satge;
+Stage stage;
 	
+	public  Ventana1() {
+	}
+	public static synchronized Ventana1 getInstance() {
+		if(instance == null) {
+			instance = new Ventana1();
+		}
+		return instance;
+	}
+	Cliente cc = Cliente.getInstance();
 	Ventana1 ventana1;
 	
 	
@@ -43,6 +58,9 @@ public class Ventana1 implements Initializable{
     private AnchorPane pane;
 	@FXML
     private Label title;
+	
+	@FXML
+    private Label lblRandom;
 
     @FXML
     private Button stopBtn;
@@ -62,7 +80,7 @@ public class Ventana1 implements Initializable{
     @FXML
     void passVent(ActionEvent event) throws IOException{
 
-    	nomYapelli = nameAnswer.getText();
+    	/*nomYapelli = nameAnswer.getText();
     	animal = animalAnswer.getText();
 		ciuYpai= locationAnswer.getText();
 		cosa = objectAnswer.getText();
@@ -121,13 +139,53 @@ public class Ventana1 implements Initializable{
 		
 	
 
-    }
+    }*/
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
-		
-		ventana1 = this;
+	
 		
 	}
+
+	@Override
+	public void startStopGame(String str) {
+		
+		/*nomYapelli = nameAnswer.getText();
+    	animal = animalAnswer.getText();
+		ciuYpai= locationAnswer.getText();
+		cosa = objectAnswer.getText();*/
+		
+		//if(!nomYapelli.isEmpty() && !animal.isEmpty() && !ciuYpai.isEmpty() && !cosa.isEmpty()){
+		
+		Platform.runLater(()-> {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Ventana1.fxml"));
+           Parent p;
+       try {
+           loader.setController(this);
+           p = (Parent) loader.load();
+           Scene scene = new Scene(p);
+
+           satge = SharedStage.getInstance();
+           stage = satge.getStage();
+           stage.setScene(scene);
+           lblRandom.setText(str);
+           stage.show();
+
+       } catch (IOException e) {
+           // TODO Auto-generated catch block
+           e.printStackTrace();
+       }
+
+   });
+		}
+		
+	//}
+	
+	public void setStopGameListenner(Cliente cc) {
+		this.cc = cc;
+		cc.setOnstart(this);
+		
+	}
+	
+
+	
 
 }

@@ -1,6 +1,6 @@
 package events;
 
-public interface OnConectionListenner {
+public interface OnSearchPlayerlistenner {
 
 		void startConection();
 }
