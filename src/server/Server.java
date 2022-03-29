@@ -1,56 +1,54 @@
 
 package server;
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 
 
 
-class Server{
+public class Server implements Session.OnMessageListener{
 
-	static final int PUERTO = 5555;
+	public static void main(String[] args) throws IOException {
+		new Server();
+	}
 
-	public void multiCuenta(){
+	private ArrayList<Session> sessions;
 
-		Socket servicio = null;
-
-		try{
-
-			ServerSocket servidor = new ServerSocket(PUERTO);
-			
-			System.out.println("Esperando peticiones por el puerto " + PUERTO);
-			
-			
-			while(true){
-				
-				
-			   
-				servicio = servidor.accept();
-				DataInputStream flujoDatosEntrada = new DataInputStream(servicio.getInputStream());  //Crea un objeto para recibir mensajes del usuario
-				OutputStream escribir = servicio.getOutputStream(); //Objeto para mandar a escribir en el cliente
-				DataOutputStream flujoDatosSalida = new DataOutputStream(escribir);  //Aqui se escriben las cosasx|
-
-				Servidor cc = new Servidor(servicio,flujoDatosEntrada,flujoDatosSalida);  //Parametros, la conexion , y los objetos de escritura/lectura
-				cc.start();
-				
-			}
-
-		}catch(Exception e){
-			e.printStackTrace();
+	public Server() throws IOException {
+		sessions = new ArrayList<>();
+		ServerSocket server = new ServerSocket(5555);
+		while (true) {
+			System.out.println("Esperando cliente...");
+			Socket socket = server.accept();
+			System.out.println("Nuevo cliente conectado!");
+			System.out.println("Entró en el puerto: " + socket.getPort());
+			Session session = new Session(socket);
+			session.setListener(this);
+			session.start();
+			sessions.add(session);
 		}
 	}
 
-	public static void main(String[] args){
-		//Se crea una instancia de la clase Servidor
-
-		Server os= new Server();
-		os.multiCuenta();
-
+	@Override
+	public void onMessage(String line) {
+		if(line.startsWith("ALL::")) {
+			try {
+				sendBroadCast(line);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
+	public void sendBroadCast(String line) throws IOException {
+		for(Session s : sessions) {
+			s.sendMessage(line);
+		}
+	}
 
 }
-
-
 
 
 
